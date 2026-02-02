@@ -1,0 +1,10 @@
+# pre-setting
+curl -fsSL https://raw.githubusercontent.com/iory/rcb4/main/rcb4/assets/system/99-rcb4-udev.rules | sudo tee /etc/udev/rules.d/99-rcb4-udev.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+sudo usermod -a -G dialout $USER
+sudo usermod -a -G plugdev $USER
+
+# setting servo-moter id
+ics-manager --baudrate 1250000
+ics-manager --baudrate 115200
