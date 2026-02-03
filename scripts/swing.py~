@@ -1,0 +1,53 @@
+# source ~/kxr/bin/activate
+# source ~/ros_ws/devel/setup.bash
+# ipython -i -- swing.py
+
+import argparse
+
+import IPython
+from kxr_controller.check_ros_master import is_ros_master_local
+from kxr_controller.kxr_interface import KXRROSRobotInterface
+import numpy as np  # NOQA
+import rospy
+from skrobot.model import RobotModel
+
+rospy.init_node("kxr_interface", anonymous=True)
+robot_model = RobotModel()
+viewer = PyrenderViewer(resolution=(640, 480))
+viewer.add(robot_model)
+viewer.show()
+
+namespace = None
+ri = KXRROSRobotInterface(
+    robot_model, namespace, controller_timeout=10.0
+)
+
+
+# servo onは
+ri.servo_on()
+
+# ri.servo_off()
+# 今の姿勢を作りたいときはri.angle_vector()で実機の姿勢が来る
+# ri.servo_off()
+# ri.angle_vector()
+
+robot_model.rarm_joint0.joint_angle(-0.67446053)
+robot_model.rarm_joint1.joint_angle(-0.7422011)
+robot_model.rarm_joint2.joint_angle(0.4894996)
+before_swing = robot_model.angle_vector()
+
+
+robot_model.rarm_joint0.joint_angle(0.3875942)
+robot_model.rarm_joint1.joint_angle(0.23561963)
+robot_model.rarm_joint2.joint_angle(1.7282689)
+after_swing = robot_model.angle_vector()
+
+ri.servo_on()
+robot_model.angle_vector(before_swing)
+ri.angle_vector(robot_model.angle_vector(), 5)
+ri.wait_interpolation()
+
+robot_model.angle_vector(after_swing)
+ri.angle_vector(robot_model.angle_vector(), 5)
+
+
